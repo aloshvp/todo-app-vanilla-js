@@ -5,13 +5,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const todoInput = document.querySelector(".todo-input");
     const todoList = document.querySelector(".todo-list");
     const todoSubmit = document.querySelector(".todo-submit");
+    let editMode = false;
+    let editItem = null;
 
     todoForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const todoText = todoInput.value.trim();
         if (todoText !== '') {
             //add todo
-            addTodoItem(todoText);
+            if (editMode) {
+                editItem.firstChild.textContent = todoText;
+                todoSubmit.innerText = 'Add Todo';
+                editMode = false;
+                editItem = null
+            } else {
+                addTodoItem(todoText);
+            }
 
             todoInput.value = "";
         } else {
@@ -19,10 +28,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    todoList.addEventListener("click", function (event) {
+        const target = event.target;
+        if (target.tagName === 'BUTTON') {
+            const todoItem = target.parentNode;
+            if (target.innerText === "Delete") {
+                todoItem.remove();
+            } else if (target.innerText === "Edit") {
+                editMode = true;
+                editItem = todoItem;
+                todoSubmit.innerText = 'Edit Todo';
+                todoInput.value = todoItem.firstChild.textContent;
+                todoInput.focus();
+            }
+        }
+    })
+
     function addTodoItem(todoText) {
         const todoItem = document.createElement("li");
-        const editButton = document.createElement("li");
-        const removeButton = document.createElement("li");
+        const editButton = document.createElement("button");
+        const removeButton = document.createElement("button");
 
         todoItem.innerHTML = `<span>${todoText}</span>`;
         editButton.innerText = `Edit`;
